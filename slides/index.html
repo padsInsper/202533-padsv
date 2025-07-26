@@ -305,14 +305,23 @@ $ geolocation_state_customer    &lt;chr&gt; "RJ", "SP", "MG", "SP", "SP", "MG", 
 </section>
 <section class="slide level2 smaller">
 <h2>Base olist</h2>
+<h3>R</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb3-2"><a href=""></a></span>
-<span id="cb3-3"><a href=""></a>olist <span class="op">=</span> pd.read_parquet(</span>
-<span id="cb3-4"><a href=""></a>  <span class="st">"https://github.com/padsInsper/202533-padsv/releases/download/dados/olist_items.parquet"</span></span>
-<span id="cb3-5"><a href=""></a>)</span>
-<span id="cb3-6"><a href=""></a></span>
-<span id="cb3-7"><a href=""></a>olist.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>olist <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(</span>
+<span id="cb3-2"><a href=""></a>  <span class="st">"https://github.com/padsInsper/202533-padsv/releases/download/dados/olist_items.parquet"</span></span>
+<span id="cb3-3"><a href=""></a>)</span>
+<span id="cb3-4"><a href=""></a></span>
+<span id="cb3-5"><a href=""></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(olist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<h3>Python</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href=""></a></span>
+<span id="cb4-3"><a href=""></a>olist <span class="op">=</span> pd.read_parquet(</span>
+<span id="cb4-4"><a href=""></a>    <span class="st">"https://github.com/padsInsper/202533-padsv/releases/download/dados/olist_items.parquet"</span></span>
+<span id="cb4-5"><a href=""></a>)</span>
+<span id="cb4-6"><a href=""></a></span>
+<span id="cb4-7"><a href=""></a>olist.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
