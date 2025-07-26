@@ -78,7 +78,7 @@ Utilizaremos uma base de dados chamada **olist**.
 ```{r}
 #| echo: true
 olist <- arrow::read_parquet(
-  "https://github.com/padsInsper/202433-padsv/releases/download/dados/olist_items.parquet"
+  "https://github.com/padsInsper/202533-padsv/releases/download/dados/olist_items.parquet"
 )
 
 dplyr::glimpse(olist)
@@ -93,7 +93,7 @@ dplyr::glimpse(olist)
 import pandas as pd
 
 olist = pd.read_parquet(
-  "https://github.com/padsInsper/202433-padsv/releases/download/dados/olist_items.parquet"
+  "https://github.com/padsInsper/202533-padsv/releases/download/dados/olist_items.parquet"
 )
 
 olist.info()
