@@ -1,0 +1,526 @@
+---
+title: "Prática Avançada de Data Science e Visualization"
+author: "Laboratórios"
+format:
+  insper-revealjs:
+    hash-type: number
+execute:
+  freeze: true
+engine: knitr
+---
+
+## Olá, tudo bem?
+
+Meu papel nessa disciplina será ajudar no aprendizado da parte dos códigos etc.
+
+```{r}
+#| include: false
+library(tidyverse)
+```
+
+
+::: incremental
+
+Também posso dar pitacos nas apresentações e salvá-los em situações de desespero (atendimentos extras).
+
+:::
+
+## Sobre como posso ajudar
+
+Coisas que eu conheço bastante:
+
+- R / tidyverse
+- extensões do ggplot2
+- htmlwidgets
+- Shiny
+- git/github
+- Quarto
+
+Coisas que eu uso mais na vibe:
+
+- Python / pandas
+- seaborn, plotnine
+
+## Uso de IA nas nossas atividades
+
+
+```{r}
+#| fig-align: center
+#| out-width: 90%
+knitr::include_graphics("img/aias.png")
+```
+
+
+## Dinâmica
+
+Nesse lab, nosso objetivo será construir soluções de transformação e visualização de dados.
+
+-   Reunam-se em grupos de 3 ou 4 pessoas.
+
+-   As tarefas serão imitar 2 gráficos que eu montei para vocês usando `ggplot2` ou `plotnine`. Eu mostrarei apenas a imagem. Posso dar dicas no meio do caminho.
+
+-   Os 3 grupos que conseguirem fazer o gráfico primeiro ganharão **prêmios**.
+
+## Base olist
+
+Utilizaremos uma base de dados chamada **olist**.
+
+::: incremental
+
+-   Para garantir que as visualizações funcionam, disponibilizei uma base que eu montei (pode conter erros) [no material dos labs](https://github.com/padsInsper/202531-padsv/releases/tag/dados).
+
+-   A base está no formato `.parquet` (usar pacote [`{arrow}`](https://arrow.apache.org/docs/r/)) ou `pd.read_parquet()` (precisa do `pyarrow` ou equivalente instalado)
+
+:::
+
+## Base olist {.smaller}
+
+```{r}
+#| echo: true
+olist <- arrow::read_parquet(
+  "https://github.com/padsInsper/202433-padsv/releases/download/dados/olist_items.parquet"
+)
+
+dplyr::glimpse(olist)
+```
+
+## Base olist {.smaller}
+
+```{python}
+#| echo: true
+#| eval: false
+
+import pandas as pd
+
+olist = pd.read_parquet(
+  "https://github.com/padsInsper/202433-padsv/releases/download/dados/olist_items.parquet"
+)
+
+olist.info()
+```
+
+---
+
+#### Exercício 01 🍪
+
+::: panel-tabset
+
+#### Resultado esperado
+
+```{r}
+#| fig-align: center
+#| out-width: 100%
+knitr::include_graphics("img/ex01.png")
+```
+
+#### Dicas
+
+- Usar a coluna `types`
+
+- Estudar a função `theme()`
+
+- As `geom_label()` ficam na metade da altura da barra.
+
+- Descubra a cor usando o *color picker* do seu navegador. 
+
+#### Código
+
+```{r}
+#| eval: false
+#| echo: false
+
+library(ggplot2)
+
+olist |>
+  dplyr::count(types) |>
+  dplyr::mutate(types = forcats::fct_reorder(types, n)) |>
+  dplyr::filter(n > 100) |>
+  dplyr::mutate(n = n / 1000) |>
+  ggplot(aes(x = n, y = types)) +
+  geom_col(fill = "#8ae3d7", width = .5) +
+  geom_label(aes(label = round(n, 2), x = n / 2)) +
+  theme_dark(16) +
+  labs(
+    x = "Quantidade\n(milhares)",
+    y = "Forma de pagamento",
+    title = "Formas de pagamento mais comuns",
+    subtitle = "Considerando tipos com mais de 100 observações",
+    caption = "Fonte: Olist"
+  ) +
+  theme(
+    panel.background = element_rect(fill = "gray20"),
+    plot.background = element_rect(fill = "gray10"),
+    text = element_text(family = "serif", colour = "white"),
+    axis.text = element_text(family = "serif", colour = "white")
+  )
+
+```
+
+
+```{python}
+#| eval: false
+#| echo: false
+
+from plotnine import *
+import pandas as pd
+import numpy as np
+
+olist = r.olist
+
+contagens = olist.value_counts('types').reset_index(name = "n")
+contagens = contagens.query('n > 100')
+
+contagens_list = contagens.set_index('types').index.tolist()
+
+contagens = contagens.copy()
+
+contagens['n'] = contagens['n'] / 1000
+contagens['lab'] = np.round(contagens['n'], 2)
+
+contagens['types'] = pd.Categorical(
+  contagens['types'], categories=contagens_list[::-1]
+)
+
+(
+  ggplot(contagens, aes(x = 'types', y = 'n'))
+  + geom_col(fill = "#8ae3d7", width = .5)
+  + geom_label(aes(label = 'lab', y = 'n / 2'))
+  + coord_flip()
+  + theme_dark(12)
+  + labs(
+    x = "Quantidade\n(milhares)",
+    y = "Forma de pagamento",
+    title = "Formas de pagamento mais comuns",
+    subtitle = "Considerando tipos com mais de 100 observações",
+    caption = "Fonte: Olist"
+  )
+  + theme(
+    panel_background = element_rect(fill = "#222222"),
+    plot_background = element_rect(fill = "#111111"),
+    text = element_text(family = "serif", colour = "white"),
+    axis_text = element_text(family = "serif", colour = "white"),
+    panel_grid_minor = element_blank()
+  )
+)
+
+
+```
+
+:::
+
+---
+
+#### Exercício 02 🍪🍪
+
+::: panel-tabset
+
+#### Resultado esperado
+
+```{r}
+#| fig-align: center
+#| out-width: 90%
+knitr::include_graphics("img/ex02.png")
+```
+
+#### Dicas
+
+- Usar `seller_state` para o estado
+
+- Usar `scale_x_date()`
+
+- Estudar `scale_color_viridis_d()`
+
+- `lubridate::floor_date()` para aproximar datas
+
+- `case_when()` ou `fct_other()` para reclassificar uma variável categórica
+
+- filtrar a base para o intervalo de datas entre "2017-01-01" e "2018-07-01"
+
+- devemos contar/agrupar por `data` (mês) e `estado`
+
+#### Código
+
+```{r}
+#| eval: false
+#| echo: false
+
+olist |>
+  dplyr::mutate(
+    data = as.Date(order_purchase_timestamp),
+    data = lubridate::floor_date(data, "month"),
+    estado = forcats::fct_other(
+      seller_state,
+      keep = c("SP", "RJ"),
+      other_level = "Outros"
+    )
+  ) |>
+  dplyr::filter(
+    # dplyr::between()
+    data >= "2017-01-01",
+    data <= "2018-07-01"
+  ) |>
+  dplyr::count(data, estado) |>
+  ggplot() +
+  aes(x = data, y = n, colour = estado) +
+  geom_line(size = 2) +
+  scale_color_viridis_d(begin = .2, end = .8) +
+  labs(
+    x = "Data",
+    y = "Quantidade",
+    title = "São Paulo tem mais vendas",
+    subtitle = "O que é esperado, pois a população é maior 😬",
+    caption = "Fonte: Olist",
+    color = "Estado"
+  ) +
+  scale_x_date(
+    date_breaks = "3 month",
+    date_labels = "%b\n%Y"
+  ) +
+  theme_light(15) +
+  theme(
+    legend.position = "bottom"
+  )
+
+```
+
+
+
+```{python}
+#| eval: false
+#| echo: false
+
+from plotnine import *
+import pandas as pd
+import numpy as np
+
+olist = r.olist
+
+olist['data'] = pd.to_datetime(olist['order_purchase_timestamp'])
+olist['data'] = pd.to_datetime(olist['data']).dt.to_period('M')
+olist['estado'] = olist['seller_state']
+
+olist['estado'] = np.where(
+  olist['estado'].isin(['SP', 'RJ']),
+  olist['estado'],
+  'Outros'
+)
+
+olist['estado'] = pd.Categorical(
+  olist['estado'], categories=['SP', 'RJ', 'Outros']
+)
+
+olist = olist.query('data >= "2017-01-01" & data <= "2018-07-01"')
+
+contagens = olist.value_counts(['data', 'estado']).reset_index(name = "n")
+
+contagens['data'] = contagens['data'].dt.to_timestamp()
+
+
+(
+  ggplot(contagens, aes(x = 'data', y = 'n', colour = 'estado', group='estado'))
+  + geom_line(size = 2)
+  + scale_color_cmap_d('viridis', begin = .2, end = .8) 
+  + scale_x_date(date_breaks = '3 month', date_labels = '%b\n%Y')
+  + labs(
+    x = "Data",
+    y = "Quantidade",
+    title = "São Paulo tem mais vendas",
+    subtitle = "O que é esperado, pois a população é maior 😬",
+    color="Estado",
+  )
+  + theme_light()
+  + theme(
+    legend_position = 'bottom'
+  )
+)
+```
+
+:::
+
+## Resumo
+
+- `ggplot2` / `plotnine` são construídos em **camadas**
+- Um gráfico é um mapeamento de variáveis (colunas) da base de dados em aspectos visuais
+- Para codar um gráfico estatístico, o processo cognitivo é fazer a **engenharia reversa** a partir de uma ideia ou inspiração visual
+- Quanto mais conhecermos os fundamentos, melhor conseguimos usar IA
+
+---
+
+#### Exercício 03 🍪🍪🍪
+
+::: panel-tabset
+
+#### Resultado esperado
+
+```{r}
+#| fig-align: center
+#| out-width: 90%
+knitr::include_graphics("img/ex03.png")
+```
+
+#### Dicas
+
+- Usar o pacote `{ggridges}`.
+
+- Para pintar apenas uma categoria, crie uma coluna.
+
+- Para anotações no gráfico (como "Mediana"), use a função `annotate()`.
+
+- Para fazer os reais, use a função `scales::scales_dollar_format()`.
+
+#### Código
+
+```{r}
+#| eval: false
+#| echo: false
+
+items_agg <- olist |>
+  dplyr::group_by(product_category_name) |>
+  dplyr::filter(dplyr::n() > 4000) |>
+  dplyr::ungroup() |>
+  dplyr::filter(product_category_name != "ferramentas_jardim") |>
+  dplyr::mutate(
+    product_category_name = stringr::str_replace_all(
+      product_category_name,
+      "_",
+      " "
+    ),
+    product_category_name = stringr::str_to_title(product_category_name),
+    product_category_name = fct_reorder(
+      product_category_name,
+      price,
+      median
+    ),
+    relogios = ifelse(
+      product_category_name == "Relogios Presentes",
+      "destacar",
+      "não destacar"
+    )
+  )
+
+mediana <- items_agg |>
+  summarise(mediana = median(price))
+
+items_agg |>
+  ggplot() +
+  aes(x = price, y = product_category_name, fill = relogios) +
+  ggridges::geom_density_ridges(
+    quantile_lines = TRUE,
+    quantiles = 2,
+    na.rm = FALSE,
+    n = 2048,
+    show.legend = FALSE
+  ) +
+  scale_x_continuous(
+    limits = c(0, NA),
+    labels = scales::dollar_format(prefix = "R$")
+  ) +
+  coord_cartesian(xlim = c(0, 300)) +
+  geom_vline(
+    aes(xintercept = mediana),
+    data = mediana,
+    linetype = 2,
+    colour = "red"
+  ) +
+  scale_fill_manual(
+    values = c("#6686e6", "#eaeaea")
+  ) +
+  theme_minimal() +
+  annotate(
+    "text",
+    x = mediana$mediana,
+    y = 0.8,
+    hjust = -0.1,
+    label = "Mediana",
+    colour = "red",
+    size = 3
+  ) +
+  labs(
+    x = "Preço",
+    y = "Categoria",
+    title = "Relógios são caros!!"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+
+:::
+
+---
+
+#### Exercício 04 🍪🍪🍪🍪
+
+::: panel-tabset
+
+#### Resultado esperado
+
+```{r}
+#| fig-align: center
+#| out-width: 90%
+knitr::include_graphics("img/ex04.png")
+```
+
+#### Dicas
+
+- Faça a contagem por estado, latitude/longtude do seller e customer
+
+- Filtre para os estados de interesse
+
+- Use `slice_sample()` para pegar 1000 observações.
+
+- Você pode usar essa semente para ficar reprodutível: `set.seed(42)`
+
+- Para obter o mapa, usar o pacote `{geobr}`
+
+- Para plotar o mapa, usar a função `geom_sf()`
+
+- Estamos desenhando CURVAS
+
+- Use facets
+
+#### Código
+
+```{r}
+#| echo: false
+#| eval: false
+
+estados <- geobr::read_state()
+
+set.seed(42)
+items |>
+  dplyr::count(
+    seller_state,
+    geolocation_lat_seller,
+    geolocation_lng_seller,
+    geolocation_lat_customer,
+    geolocation_lng_customer
+  ) |>
+  dplyr::filter(seller_state %in% c("SP", "MG", "RJ")) |>
+  dplyr::slice_sample(n = 1000) |>
+  ggplot() +
+  geom_sf(data = estados, fill = "gray95", size = .1) +
+  geom_curve(
+    mapping = aes(
+      x = geolocation_lng_seller,
+      y = geolocation_lat_seller,
+      xend = geolocation_lng_customer,
+      yend = geolocation_lat_customer
+    ),
+    arrow = arrow(length = unit(0.1, "inches")),
+    curvature = .2,
+    alpha = .2,
+    colour = "royalblue"
+  ) +
+  facet_wrap(~seller_state, strip.position = "bottom") +
+  theme_void(base_size = 16) +
+  labs(
+    title = "Para onde vão as compras?",
+    subtitle = "Comparando São Paulo, Minas Gerais e Rio de Janeiro",
+    caption = "Fonte: Olist"
+  )
+
+```
+
+
+:::
