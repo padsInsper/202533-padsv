@@ -9,9 +9,9 @@ execute:
 engine: knitr
 ---
 
-## Olá, tudo bem?
+# Por que usar código para visualização de dados?
 
-Meu papel nessa disciplina será ajudar no aprendizado da parte dos códigos etc.
+# O que é um gráfico estatístico?
 
 ```{r}
 #| include: false
@@ -19,11 +19,6 @@ library(tidyverse)
 ```
 
 
-::: incremental
-
-Também posso dar pitacos nas apresentações e salvá-los em situações de desespero (atendimentos extras).
-
-:::
 
 ## Sobre como posso ajudar
 
