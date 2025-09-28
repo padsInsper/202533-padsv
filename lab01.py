@@ -10,6 +10,16 @@ pagamento_filtro = pagamento_counts[pagamento_counts['Quantidade'] > 100]
 
 pagamento_filtro['Quantidade (milhares)'] = round(pagamento_filtro['Quantidade'] / 1000, 2)
 
-pagamento_filtro
+pagamento_filtro['n'] = pagamento_filtro['Quantidade (milhares)']
+
+from plotnine import *
+
+(
+    ggplot(pagamento_filtro, aes(y = 'Quantidade (milhares)', x = 'Forma de pagamento'))
+    + geom_col()
+    + coord_flip()
+    + geom_label(aes(label = 'round(n, 2)', y = 'n / 2'))
+)
+
 
 

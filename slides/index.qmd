@@ -252,7 +252,7 @@ knitr::include_graphics("img/ex02.png")
 ```{r}
 #| eval: false
 #| echo: false
-
+olist$order
 olist |>
   dplyr::mutate(
     data = as.Date(order_purchase_timestamp),

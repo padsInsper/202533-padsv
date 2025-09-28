@@ -1,6 +1,6 @@
 library(tidyverse)
 library(dados)
-  
+
 # vamos fazer um bd de pokemons
 pokemons <- c("pikachu", "bulbasaur", "squirtle", "charmander")
 infos_pokemon <- function(pokemon) {
@@ -14,8 +14,8 @@ infos_pokemon <- function(pokemon) {
   )
 }
 
-da_pokemon <- purrr::map_dfr(pokemons, infos_pokemon) |> 
-  mutate(pokemon = fct_reorder(pokemon, attack)) |> 
+da_pokemon <- purrr::map_dfr(pokemons, infos_pokemon) |>
+  mutate(pokemon = fct_reorder(pokemon, attack)) |>
   arrange(pokemon)
 
 gg_base <- da_pokemon |>
@@ -24,7 +24,7 @@ gg_base <- da_pokemon |>
     aes(x = 0, xend = attack, y = pokemon, yend = pokemon)
   ) +
   geom_point(
-    aes(x = attack, y = pokemon, colour = pokemon), 
+    aes(x = attack, y = pokemon, colour = pokemon),
     size = 7,
     show.legend = FALSE
   ) +
@@ -45,7 +45,11 @@ gg_base +
     labels = glue::glue("<img src='{da_pokemon$img}'>")
   ) +
   theme(
-    plot.title = element_text(family = "Pokemon Hollow", size = 50),
+    plot.title = ggtext::element_markdown(
+      family = "Pokemon Hollow",
+      size = 50,
+      colour = "darkblue"
+    ),
     axis.title = element_text(family = "Pokemon Hollow", size = 20),
     axis.text.y = ggtext::element_markdown()
   )
